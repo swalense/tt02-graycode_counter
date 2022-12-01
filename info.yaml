@@ -1,11 +1,15 @@
---- 
+---
 # TinyTapeout project information
 project:
   wokwi_id:    0        # If using wokwi, set this to your project's ID
+
 #  source_files:        # If using an HDL, set wokwi_id as 0 and uncomment and list your source files here. Source files must be in ./src
 #    - counter.v
 #    - decoder.v
 #  top_module:  "seven_segment_seconds"      # put the name of your top module here, make it unique by prepending your github username
+  source_files:
+    - swalense_top.v
+  top_module: "swalense_top"
 
 # As everyone will have access to all designs, try to make it easy for someone new to your design to know what
 # it does and how to operate it.
@@ -13,34 +17,54 @@ project:
 # Here is an example: https://github.com/mattvenn/tinytapeout_m_segments/blob/main/info.yaml
 #
 # This info will be automatically collected and used to make a datasheet for the chip.
-documentation: 
-  author:       ""      # Your name
-  discord:      ""      # Your discord handle - make sure to include the # part as well
-  title:        ""      # Project title
-  description:  ""      # Short description of what your project does
-  how_it_works: ""      # Longer description of how the project works
-  how_to_test:  ""      # Instructions on how someone could test your project, include things like what buttons do what and how to set the clock if needed
-  external_hw:  ""      # Describe any external hardware needed
-  language:     "wokwi" # other examples include Verilog, Amaranth, VHDL, etc
-  doc_link:     ""      # URL to longer form documentation, eg the README.md in your repository
-  clock_hz:     0       # Clock frequency in Hz (if required) we are expecting max clock frequency to be ~6khz. Provided on input 0.
+documentation:
+  author:       "Eric Swalens"
+  discord:      "rxvoid#0294"
+  title:        "Configurable Gray Code Counter"
+  description:  "A configurable counter driven by 2-channel Gray code"
+  how_it_works: |
+    The module is a configurable counter modified by Gray code input (aka 2-bit quadrature code) that aims at easing the integration with incremental rotary encoders.
+    The counter value is given as a parallel or (8-bit, no parity, 1 stop bit) serial output.
+    Other outputs include the "direction" of progression of the Gray code, and a PWM signal for which the duty cycle is proportional to the counter value.
+    
+    Some basic debouncing logic is included; any pulse inverting the direction must be followed by a second pulse in the same direction before the change is registered.
+    
+    The module can be used out of the box as a 4 or 5-bit counter with optional support for wrapping (the counter rolls over at the minimum or maximum value),
+    and a "gearbox" that selects the X1, X2 or X4 output of the Gray code decoder driving the counter depending on the speed at which the channels change; this can provide some form of "acceleration".
+    
+    Alternatively, when enabling the SPI mode, the configuration inputs are used as a communication bus. This gives access to all the configuration parameters (see "how to test").
+  how_to_test: |
+    Connect a device generating Gray code and set the feature input bits (all bits are active high).
+    Retrieve the counter value at the parallel or serial outputs with a microcontroller or other circuitry.
+    
+    The 8-N-1 serial output shifts 1 bit out at each clock cycle. The receiving serial port therefore needs to be configured at the same speed.
+    
+    The gearbox effect depends on the clock frequency. Experimenting with different frequencies may be required;
+    the internal timer was calibrated for a 24 detents / 24 PPR encoder and a 5 kHz clock.
+
+    When the SPI mode is enabled a 24-bit (TBC) integer is used to configure the module; it is constructed from the information below.
+    Note that the maximum counter value is then defined as a 6-bit value. Only the 5 lower bits are available at the output, the complete value must be retrieved from the serial output.
+  external_hw: |
+    A source of Gray code. Filtering and Schmitt triggers may be required if a mechanical encoder is used.
+  language:     "Amaranth" # other examples include Verilog, Amaranth, VHDL, etc
+  doc_link:     "https://github.com/swalense/tt02-gray_code_counter#readme"      # URL to longer form documentation, eg the README.md in your repository
+  clock_hz:     5000       # Clock frequency in Hz (if required) we are expecting max clock frequency to be ~6khz. Provided on input 0.
   picture:      ""      # relative path to a picture in your repository
   inputs:               # a description of what the inputs do
     - clock
     - reset
-    - none
-    - none
-    - none
-    - none
-    - none
-    - none
+    - channel A
+    - channel B
+    - SPI enable
+    - gearbox enable / CS
+    - wrapping enable / SCK
+    - 4-bit enable / SDI
   outputs:
-    - segment a         # a description of what the outputs do
-    - segment b
-    - segment c
-    - segment d
-    - segment e
-    - segment f
-    - segment g
-    - none
-
+    - counter bit 0
+    - counter bit 1
+    - counter bit 2
+    - counter bit 3
+    - counter bit 4
+    - UART serial output
+    - direction
+    - PWM signal
