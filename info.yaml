@@ -25,7 +25,7 @@ documentation:
   how_it_works: |
     The module is an 8-bit configurable counter modified by Gray code (aka 2-bit quadrature code);
     it aims at easing the integration of incremental rotary encoders into projects.
-    The counter value is given as a (truncated to 5 bits) parallel or (8 bits, no parity, 1 stop bit) serial output.
+    The counter value is given as a (truncated to 5 bits) parallel or (8 bits, no parity, 1 stop bit) serial UART output.
     Other outputs include the "direction" of progression of the Gray code, and a PWM signal for which the duty cycle is proportional to the counter value.
     
     Some basic (optional) debouncing logic is included; any pulse inverting the direction must be followed by a second pulse in the same direction before the change is registered.
@@ -36,13 +36,20 @@ documentation:
     
     After reset the module is configured as a basic 5-bit counter which can then be further modified by sending a 32-bit word over the SPI interface.
     This word sets the following options (reset value between parentheses):
-    gearbox enable (0),
-    debounce logic enable (1),
-    wrapping enable (0),,
-    Gray code value for X1 (0),
-    gearbox timer value (n/a, gearbox is disabled),
-    counter initial value (0),
-    counter maximum value (31).
+
+    - gearbox enable (0)
+
+    - debounce logic enable (1)
+
+    - wrap enable (0)
+
+    - Gray code value for X1 (0)
+
+    - gearbox timer value (n/a, gearbox is disabled)
+
+    - counter initial value (0)
+
+    - counter maximum value (31)
 
     See link to GitHub for possible errata.
   how_to_test: |
@@ -53,7 +60,7 @@ documentation:
     
     - [31:24] maximum counter value
     
-    - [16:24] initial counter value after configuration
+    - [16:23] initial counter value after configuration
     
     - [8:15] gearbox timer
     
@@ -74,7 +81,7 @@ documentation:
     For a rotary encoder with detents one can suggest using *clock_hz / (detents x transitions - 16)* as a starting point to determine a suitable value,
     where detents is the number per turn (e.g. 24) and transitions is the number per detent (e.g. 4). That is, 62 for a common 24 detents / 24 PPR encoder.
 
-    The 8-N-1 serial output shifts 1 bit out at each clock cycle. The receiving serial port therefore needs to be configured at the same speed as the clock.
+    The 8-N-1 UART serial output shifts 1 bit out at each clock cycle. The receiving serial port therefore needs to be configured at the same speed as the clock.
     
     The PWM frequency is derived from the maximum counter value. It might be unsuitable for visual feedback, e.g. driving a LED, for large values with a low
     clock frequency as the LED will appear blinking.

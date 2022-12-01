@@ -37,7 +37,7 @@ To further configure the module send some configuration word over the SPI interf
 The 32-bit configuration word is constructed a follows (bits between brackets):
 
 - [31:24] maximum counter value
-- [16:24] initial counter value after configuration
+- [16:23] initial counter value after configuration
 - [8:15] gearbox timer
 - [5:7] unused
 - [3:4] X1 value

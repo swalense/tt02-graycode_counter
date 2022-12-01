@@ -80,6 +80,7 @@ class Device(Elaboratable):
             self._decoder.debounce,
             self._decoder.x1_value)
 
+        assert self._gearbox.timer_cycles.width == 8
         params = Cat(
             combined_params,
             Signal(config.SPI_WORD_LEN - combined_params.shape().width),
