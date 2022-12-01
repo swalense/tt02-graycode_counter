@@ -1,10 +1,8 @@
-import logging
 import unittest
 
 from amaranth import *
 
 import hdl.util as util
-import hdl.config as config
 
 from hdl.test_common import test_case, TestCase
 
@@ -15,9 +13,9 @@ class PWMSignal(Elaboratable):
     PWM signal generator.
 
     Inputs:
-        * duty: duty cycle, with respect to width parameter.
+        * duty: current duty cycle.
             The output is constantly low for 0, otherwise high for duty+1 cycles.
-        * half (active low): duty only reaches half of value corresponding to width.
+        * max_duty: maximum duty cycle.
 
     Outputs:
         * signal: PWM signal

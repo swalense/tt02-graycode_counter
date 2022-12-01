@@ -71,7 +71,6 @@ class Device(Elaboratable):
         m.submodules.serial_out = self._serial_out
         m.submodules.counter = self._internal_counter
 
-        # -------------------------
         # SPI interface and configuration parameters
 
         # These parameters are part of the same config byte
@@ -117,9 +116,7 @@ class Device(Elaboratable):
             params.eq(spi.data)
         ]
 
-        # --------------------------------------
         # Counter
-
         m.d.comb += [
             self._internal_counter.inc.eq(self._decoder.direction),
             self._internal_counter.strobe.eq(~spi.busy & self._gearbox.strobe),
@@ -128,17 +125,13 @@ class Device(Elaboratable):
             self.counter.eq(self._internal_counter.value)
         ]
 
-        # --------------------------------------
         # PWM
-
         m.d.comb += [
             self._pwm_signal.duty.eq(self._internal_counter.value),
             self._pwm_signal.max_duty.eq(self._internal_counter.max_value),
         ]
 
-        # --------------------------------------
         # UART
-
         m.d.comb += [
             self._serial_out.word.eq(self._internal_counter.value),
             self._serial_out.strobe.eq(self._internal_counter.updating_strobe)
