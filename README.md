@@ -10,24 +10,31 @@ Go to https://tinytapeout.com for instructions!
 
 The module is an 8-bit configurable counter modified by Gray code (aka 2-bit quadrature code);
 it aims at easing the integration of incremental rotary encoders into projects.
-The counter value is given as a (truncated to 5 bits) parallel or (8 bits, no parity, 1 stop bit) serial output.
+The counter value is given as a (truncated to 5 bits) parallel or (8 bits, no parity, 1 stop bit) serial UART output.
 Other outputs include the "direction" of progression of the Gray code, and a PWM signal for which the duty cycle is proportional to the counter value.
 
-Some basic (optional) debouncing logic is included; any pulse inverting the direction must be followed by a second pulse in the same direction before the change is registered.
+Some basic (optional) debouncing logic is included; any pulse inverting the direction must be followed by a second pulse in the same direction
+before the change is registered.
 
 Additional features include support for wrapping (the counter rolls over at the minimum and maximum value),
-and a "gearbox" that selects the X1, X2 or X4 output of the Gray code decoder driving the counter depending on the speed at which the channels change;
-this can provide some form of "acceleration". The initial and maximum values of the counter can also be set.  
+and a "gearbox" that selects the X1 (1 pulse per 4 transitions), X2 (2 pulses) or X4 (4 pulses) output of the Gray code decoder driving the counter
+depending on the speed at which the channels change; this can provide some form of "acceleration".
+The initial and maximum values of the counter can also be set.  
+
+Encoders with twice the number of detents compared to the number of pulses per round (e.g. 24 detents / 12 PPR) are supported 
+by setting the input "update on X2" high or forcing it with the configuration parameter.
 
 After reset the module is configured as a basic 5-bit counter which can then be further modified by sending a 32-bit word over the SPI interface.
 This word sets the following options (reset value between parentheses):
-- gearbox enable (0),
-- debounce logic enable (1),
-- wrapping enable (0),,
-- Gray code value for X1 (0),
-- gearbox timer value (n/a, gearbox is disabled),
-- counter initial value (0),
-- counter maximum value (31).
+
+- gearbox enable (0)
+- debounce logic enable (1)
+- wrap enable (0)
+- Gray code value for X1 (0)
+- force update on X2 (0), this overrides a low value at the input pin (the value for X1 selects which transitions are taken into consideration)
+- gearbox timer value (n/a, gearbox is disabled)
+- counter initial value (0)
+- counter maximum value (31)
 
 # How to test
 
@@ -36,10 +43,11 @@ For a basic test connect a device generating Gray code and retrieve the counter 
 To further configure the module send some configuration word over the SPI interface (mode 0, MSB first, CS is active low).
 The 32-bit configuration word is constructed a follows (bits between brackets):
 
-- [31:24] maximum counter value
+- [24:31] maximum counter value
 - [16:23] initial counter value after configuration
 - [8:15] gearbox timer
-- [5:7] unused
+- [6:7] unused
+- [5:5] force update on X2
 - [3:4] X1 value
 - [2:2] debounce enable
 - [1:1] wrap enable

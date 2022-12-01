@@ -13,6 +13,7 @@ IC_PMOD = [
 
         # PMOD 1A
         Subsignal("channels", Pins("1 2", dir="i", conn=("pmod", 0)), ATTRS_IO),
+        Subsignal("force_x2", Pins("3", dir="i", conn=("pmod", 0)), ATTRS_IO),
         Subsignal("cs", Pins("4", dir="i", conn=("pmod", 0)), ATTRS_IO),
         Subsignal("sck", Pins("7", dir="i", conn=("pmod", 0)), ATTRS_IO),
         Subsignal("sdi", Pins("8", dir="i", conn=("pmod", 0)), ATTRS_IO),
@@ -83,6 +84,7 @@ class ICEBreakerDevice(Elaboratable):
 
         m.d.comb += [
             top.channels.eq(conn_in.channels),
+            top.force_x2.eq(conn_in.force_x2),
             top.cs.eq(conn_in.cs),
             top.sck.eq(conn_in.sck),
             top.sdi.eq(conn_in.sdi),

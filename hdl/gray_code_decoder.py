@@ -11,11 +11,14 @@ class GrayCodeDecoder(Elaboratable):
     def __init__(self, default_debounce: bool = False):
 
         # Inputs
+
         self.channels = Signal(2)
         self.debounce = Signal(reset=int(default_debounce))
         self.x1_value = Signal(2)
+        self.force_x2 = Signal()
 
         # Outputs
+
         self.direction = Signal()
         self.strobe_x4 = Signal()
         self.strobe_x2 = Signal()
@@ -31,8 +34,8 @@ class GrayCodeDecoder(Elaboratable):
         m.d.comb += dir.eq(self.channels[0] ^ prev_channels[1])
 
         m.d.comb += [
-            self.strobe_x2.eq(self.strobe_x4 & (self.channels[0] == self.channels[1])),
-            self.strobe_x1.eq(self.strobe_x2 & (self.channels[0] == self.x1_value))
+            self.strobe_x2.eq(self.strobe_x4 & ((self.channels == self.x1_value) | (self.channels == ~self.x1_value))),
+            self.strobe_x1.eq(Mux(self.force_x2, self.strobe_x2, (self.strobe_x4 & (self.channels == self.x1_value))))
         ]
 
         m.d.sync += self.strobe_x4.eq(0)
@@ -58,12 +61,25 @@ class GrayCodeDecoder(Elaboratable):
 
 class GrayCodeDecoderTestSuite(TestCase):
 
+    SEQUENCE_INC = [1, 3, 2, 0]
+
+    DELAY = 4
+
     def instantiate_dut(self):
         return GrayCodeDecoder()
 
     @test_case
     def test(self):
-        yield
+
+        for s in self.SEQUENCE_INC * 2:
+
+            yield self.dut.x1_value.eq(0b11)
+
+            yield self.dut.channels.eq(s)
+            for _ in range(self.DELAY):
+                yield
+
+
 
         # FIXME: test is incomplete
         self.logger.warning("no test is implemented")

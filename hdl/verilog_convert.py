@@ -29,12 +29,13 @@ class Top(Elaboratable):
 
         inputs = Cat(
             dev.channels,
+            dev.force_x2,
             dev.cs,
             dev.sck,
             dev.sdi,
         )
 
-        input_pins = self.io_in[2:7]
+        input_pins = self.io_in[2:8]
 
         assert inputs.shape() == input_pins.shape(), "inconsistent input shape"
 

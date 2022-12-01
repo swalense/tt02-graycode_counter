@@ -38,6 +38,7 @@ async def set_in_default(dut):
 
     dut.rst.value = 0
     dut.channels.value = 1
+    dut.force_x2.value = 0
     dut.cs.value = 1
     dut.sck.value = 0
     dut.sdi.value = 0
@@ -169,3 +170,10 @@ async def test_spi(dut):
 
     data = dut._id(SPI_BUFFER_PATH, extended=False).value
     assert data == VALUE
+
+
+@cocotb.test(skip=True)
+async def test_force_x2(dut):
+
+    await do_init(dut)
+    dut._log.warning("test is missing")

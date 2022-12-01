@@ -5,6 +5,7 @@ module tb (
         input clk,
         input rst,
         input [1:0] channels,
+        input force_x2,
         input cs,
         input sck,
         input sdi,
@@ -20,7 +21,7 @@ module tb (
         #1;
     end
 
-    wire [7:0] inputs = {1'b0, sdi, sck, cs, channels[1:0], rst, clk};
+    wire [7:0] inputs = {sdi, sck, cs, force_x2, channels[1:0], rst, clk};
 
     wire [7:0] outputs;
     assign {counter[4:0], direction, pwm, serial_tx} = outputs[7:0];

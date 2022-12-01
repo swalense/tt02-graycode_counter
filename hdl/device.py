@@ -30,6 +30,7 @@ class Device(Elaboratable):
         self._internal_counter = Counter(width=width)
 
         # Inputs
+        self.force_x2 = Signal()
         self.channels = self._decoder.channels
         self.cs = Signal()
         self.sck = Signal()
@@ -45,7 +46,7 @@ class Device(Elaboratable):
 
     @staticmethod
     def calculate_parameters_value(
-            wrap: bool, debounce: bool, gearbox: bool,
+            wrap: bool, debounce: bool, gearbox: bool, force_x2: bool,
             x1_value: int,
             gearbox_timer_cycles: int,
             init_value: int,
@@ -56,7 +57,8 @@ class Device(Elaboratable):
         return int(gearbox) |\
                (int(wrap) << 1) |\
                (int(debounce) << 2) |\
-               (x1_value << 3) |\
+               (x1_value << 3) | \
+               (int(force_x2) << 5) |\
                (gearbox_timer_cycles << config.SPI_WORD_LEN) |\
                (init_value << (config.SPI_WORD_LEN * 2)) |\
                (max_value << (config.SPI_WORD_LEN * 3))
@@ -73,12 +75,16 @@ class Device(Elaboratable):
 
         # SPI interface and configuration parameters
 
+        spi_force_x2 = Signal()
+        m.d.comb += self._decoder.force_x2.eq(self.force_x2 | spi_force_x2)
+
         # These parameters are part of the same config byte
         combined_params = Cat(
             self._gearbox.enable,
             self._internal_counter.wrap,
             self._decoder.debounce,
-            self._decoder.x1_value)
+            self._decoder.x1_value,
+            spi_force_x2)
 
         assert self._gearbox.timer_cycles.width == 8
         params = Cat(
@@ -97,7 +103,8 @@ class Device(Elaboratable):
         spi_init = self.calculate_parameters_value(
             debounce=config.DECODER_DEFAULT_DEBOUNCE,
             wrap=config.DECODER_DEFAULT_WRAP,
-            x1_value=0,
+            x1_value=config.DECODER_DEFAULT_X1_VALUE,
+            force_x2=config.DECODER_DEFAULT_FORCE_X2,
             gearbox=config.GEARBOX_DEFAULT_ENABLED,
             gearbox_timer_cycles=gbp_cycles,
             max_value=config.COUNTER_DEFAULT_MAX_VALUE,

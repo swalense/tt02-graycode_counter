@@ -72,7 +72,7 @@ module counter(rst, wrap, init_value, max_value, inc, strobe, reset, value, upda
   assign can_update = \$5 ;
 endmodule
 
-module decoder(rst, channels, direction, debounce, x1_value, strobe_x2, strobe_x4, strobe_x1, clk);
+module decoder(rst, channels, direction, force_x2, debounce, x1_value, strobe_x2, strobe_x4, strobe_x1, clk);
   reg \$auto$verilog_backend.cc:2083:dump_module$2  = 0;
   wire \$1 ;
   wire \$11 ;
@@ -81,8 +81,12 @@ module decoder(rst, channels, direction, debounce, x1_value, strobe_x2, strobe_x
   wire \$17 ;
   wire \$19 ;
   wire \$21 ;
+  wire \$23 ;
+  wire \$25 ;
+  wire \$27 ;
+  wire \$29 ;
   wire \$3 ;
-  wire \$5 ;
+  wire [1:0] \$5 ;
   wire \$7 ;
   wire \$9 ;
   input [1:0] channels;
@@ -95,6 +99,8 @@ module decoder(rst, channels, direction, debounce, x1_value, strobe_x2, strobe_x
   output direction;
   reg direction = 1'h0;
   reg \direction$next ;
+  input force_x2;
+  wire force_x2;
   reg [1:0] prev_channels = 2'h0;
   reg [1:0] \prev_channels$next ;
   input rst;
@@ -108,29 +114,33 @@ module decoder(rst, channels, direction, debounce, x1_value, strobe_x2, strobe_x
   reg \strobe_x4$next ;
   input [1:0] x1_value;
   wire [1:0] x1_value;
-  assign \$9  = strobe_x2 & \$7 ;
-  assign \$11  = channels != prev_channels;
-  assign \$13  = dir == direction;
-  assign \$15  = ~ debounce;
-  assign \$17  = \$13  | \$15 ;
+  assign \$9  = \$3  | \$7 ;
+  assign \$11  = strobe_x4 & \$9 ;
+  assign \$13  = channels == x1_value;
+  assign \$15  = strobe_x4 & \$13 ;
+  assign \$17  = force_x2 ? strobe_x2 : \$15 ;
   assign \$1  = channels[0] ^ prev_channels[1];
   assign \$19  = channels != prev_channels;
-  assign \$21  = channels != prev_channels;
+  assign \$21  = dir == direction;
+  assign \$23  = ~ debounce;
+  assign \$25  = \$21  | \$23 ;
+  assign \$27  = channels != prev_channels;
+  assign \$29  = channels != prev_channels;
   always @(posedge clk)
     strobe_x4 <= \strobe_x4$next ;
   always @(posedge clk)
     prev_channels <= \prev_channels$next ;
   always @(posedge clk)
     direction <= \direction$next ;
-  assign \$3  = channels[0] == channels[1];
-  assign \$5  = strobe_x4 & \$3 ;
-  assign \$7  = channels[0] == x1_value;
+  assign \$3  = channels == x1_value;
+  assign \$5  = ~ x1_value;
+  assign \$7  = channels == \$5 ;
   always @* begin
     if (\$auto$verilog_backend.cc:2083:dump_module$2 ) begin end
     \strobe_x4$next  = 1'h0;
-    casez (\$11 )
+    casez (\$19 )
       1'h1:
-          \strobe_x4$next  = \$17 ;
+          \strobe_x4$next  = \$25 ;
     endcase
     casez (rst)
       1'h1:
@@ -140,7 +150,7 @@ module decoder(rst, channels, direction, debounce, x1_value, strobe_x2, strobe_x
   always @* begin
     if (\$auto$verilog_backend.cc:2083:dump_module$2 ) begin end
     \prev_channels$next  = prev_channels;
-    casez (\$19 )
+    casez (\$27 )
       1'h1:
           \prev_channels$next  = channels;
     endcase
@@ -152,7 +162,7 @@ module decoder(rst, channels, direction, debounce, x1_value, strobe_x2, strobe_x
   always @* begin
     if (\$auto$verilog_backend.cc:2083:dump_module$2 ) begin end
     \direction$next  = direction;
-    casez (\$21 )
+    casez (\$29 )
       1'h1:
           \direction$next  = dir;
     endcase
@@ -161,15 +171,16 @@ module decoder(rst, channels, direction, debounce, x1_value, strobe_x2, strobe_x
           \direction$next  = 1'h0;
     endcase
   end
-  assign strobe_x1 = \$9 ;
-  assign strobe_x2 = \$5 ;
+  assign strobe_x1 = \$17 ;
+  assign strobe_x2 = \$11 ;
   assign dir = \$1 ;
 endmodule
 
-module dev(rst, channels, cs, sck, sdi, tx, pwm_signal, direction, counter, clk);
+module dev(rst, channels, force_x2, cs, sck, sdi, tx, pwm_signal, direction, counter, clk);
   wire \$2 ;
   wire \$4 ;
-  wire [2:0] \$signal ;
+  wire \$6 ;
+  wire [1:0] \$signal ;
   input [1:0] channels;
   wire [1:0] channels;
   input clk;
@@ -187,12 +198,15 @@ module dev(rst, channels, cs, sck, sdi, tx, pwm_signal, direction, counter, clk)
   input cs;
   wire cs;
   wire decoder_debounce;
+  wire decoder_force_x2;
   wire decoder_strobe_x1;
   wire decoder_strobe_x2;
   wire decoder_strobe_x4;
   wire [1:0] decoder_x1_value;
   output direction;
   wire direction;
+  input force_x2;
+  wire force_x2;
   wire gearbox_enable;
   wire gearbox_strobe;
   wire [7:0] gearbox_timer_cycles;
@@ -211,13 +225,15 @@ module dev(rst, channels, cs, sck, sdi, tx, pwm_signal, direction, counter, clk)
   wire spi_busy;
   wire spi_cs;
   wire [31:0] spi_data;
+  wire spi_force_x2;
   wire spi_sck;
   wire spi_sdi;
   wire spi_strobe;
   output tx;
   wire tx;
-  assign \$2  = ~ spi_busy;
-  assign \$4  = \$2  & gearbox_strobe;
+  assign \$2  = force_x2 | spi_force_x2;
+  assign \$4  = ~ spi_busy;
+  assign \$6  = \$4  & gearbox_strobe;
   counter \counter$1  (
     .clk(clk),
     .inc(counter_inc),
@@ -235,6 +251,7 @@ module dev(rst, channels, cs, sck, sdi, tx, pwm_signal, direction, counter, clk)
     .clk(clk),
     .debounce(decoder_debounce),
     .direction(direction),
+    .force_x2(decoder_force_x2),
     .rst(rst),
     .strobe_x1(decoder_strobe_x1),
     .strobe_x2(decoder_strobe_x2),
@@ -281,33 +298,32 @@ module dev(rst, channels, cs, sck, sdi, tx, pwm_signal, direction, counter, clk)
   assign pwm_duty = counter_value;
   assign counter = counter_value;
   assign counter_reset = spi_strobe;
-  assign counter_strobe = \$4 ;
+  assign counter_strobe = \$6 ;
   assign counter_inc = direction;
-  assign { counter_max_value, counter_init_value, gearbox_timer_cycles, \$signal , decoder_x1_value, decoder_debounce, counter_wrap, gearbox_enable } = spi_data;
+  assign { counter_max_value, counter_init_value, gearbox_timer_cycles, \$signal , spi_force_x2, decoder_x1_value, decoder_debounce, counter_wrap, gearbox_enable } = spi_data;
   assign spi_sdi = sdi;
   assign spi_sck = sck;
   assign spi_cs = cs;
+  assign decoder_force_x2 = \$2 ;
 endmodule
 
 module gearbox(rst, enable, timer_cycles, strobe, strobe_x2, strobe_x4, strobe_x1, clk);
   reg \$auto$verilog_backend.cc:2083:dump_module$3  = 0;
   wire [8:0] \$1 ;
-  wire [8:0] \$10 ;
-  wire [8:0] \$11 ;
+  wire [5:0] \$10 ;
+  wire [5:0] \$11 ;
   wire \$13 ;
   wire \$14 ;
   wire \$17 ;
-  wire [8:0] \$19 ;
+  wire [5:0] \$19 ;
   wire [8:0] \$2 ;
-  wire [8:0] \$20 ;
-  wire [7:0] \$22 ;
-  wire [7:0] \$23 ;
-  wire [4:0] \$25 ;
-  wire [4:0] \$26 ;
+  wire [5:0] \$20 ;
+  wire [4:0] \$22 ;
+  wire [4:0] \$23 ;
+  wire [1:0] \$25 ;
   wire \$27 ;
-  wire \$30 ;
-  wire \$32 ;
-  wire \$34 ;
+  wire \$29 ;
+  wire \$31 ;
   wire \$4 ;
   wire \$6 ;
   wire \$8 ;
@@ -315,7 +331,7 @@ module gearbox(rst, enable, timer_cycles, strobe, strobe_x2, strobe_x4, strobe_x
   wire clk;
   input enable;
   wire enable;
-  wire [4:0] g;
+  wire [1:0] g;
   wire [1:0] gear;
   reg [7:0] period = 8'h7f;
   reg [7:0] \period$next ;
@@ -329,8 +345,8 @@ module gearbox(rst, enable, timer_cycles, strobe, strobe_x2, strobe_x4, strobe_x
   wire strobe_x2;
   input strobe_x4;
   wire strobe_x4;
-  reg [7:0] threshold = 8'h00;
-  reg [7:0] \threshold$next ;
+  reg [4:0] threshold = 5'h00;
+  reg [4:0] \threshold$next ;
   input [7:0] timer_cycles;
   wire [7:0] timer_cycles;
   assign \$11  = threshold - 1'h1;
@@ -338,11 +354,10 @@ module gearbox(rst, enable, timer_cycles, strobe, strobe_x2, strobe_x4, strobe_x
   assign \$13  = ~ \$14 ;
   assign \$17  = strobe_x4 & \$13 ;
   assign \$20  = threshold + 1'h1;
-  assign \$27  = | g[4:1];
-  assign \$26  = \$27  ? 5'h02 : g;
+  assign \$25  = g[1] ? 2'h2 : g;
   assign \$2  = period + 1'h1;
-  assign \$32  = enable ? strobe_x2 : strobe_x1;
-  assign \$34  = enable ? strobe_x4 : strobe_x1;
+  assign \$29  = enable ? strobe_x2 : strobe_x1;
+  assign \$31  = enable ? strobe_x4 : strobe_x1;
   always @(posedge clk)
     period <= \period$next ;
   always @(posedge clk)
@@ -369,16 +384,16 @@ module gearbox(rst, enable, timer_cycles, strobe, strobe_x2, strobe_x4, strobe_x
       1'h1:
           casez (\$8 )
             1'h1:
-                \threshold$next  = \$11 [7:0];
+                \threshold$next  = \$11 [4:0];
           endcase
     endcase
     casez (\$17 )
       1'h1:
-          \threshold$next  = \$20 [7:0];
+          \threshold$next  = \$20 [4:0];
     endcase
     casez (rst)
       1'h1:
-          \threshold$next  = 8'h00;
+          \threshold$next  = 5'h00;
     endcase
   end
   always @* begin
@@ -386,22 +401,21 @@ module gearbox(rst, enable, timer_cycles, strobe, strobe_x2, strobe_x4, strobe_x
     (* full_case = 32'd1 *)
     casez (gear)
       2'h0:
-          strobe = \$30 ;
+          strobe = \$27 ;
       2'h1:
-          strobe = \$32 ;
+          strobe = \$29 ;
       2'h?:
-          strobe = \$34 ;
+          strobe = \$31 ;
     endcase
   end
   assign \$1  = \$2 ;
   assign \$10  = \$11 ;
   assign \$19  = \$20 ;
   assign \$22  = \$23 ;
-  assign \$25  = \$26 ;
-  assign gear = \$26 [1:0];
-  assign g = \$23 [4:0];
-  assign \$23  = { 3'h0, threshold[7:3] };
-  assign \$30  = strobe_x1;
+  assign gear = \$25 ;
+  assign g = \$23 [1:0];
+  assign \$23  = { 3'h0, threshold[4:3] };
+  assign \$27  = strobe_x1;
 endmodule
 
 module pwm(rst, pwm_signal, duty, max_duty, clk);
@@ -727,6 +741,7 @@ module swalense_top(io_in, io_out);
   wire [7:0] dev_counter;
   wire dev_cs;
   wire dev_direction;
+  wire dev_force_x2;
   wire dev_pwm_signal;
   wire dev_rst;
   wire dev_sck;
@@ -742,6 +757,7 @@ module swalense_top(io_in, io_out);
     .counter(dev_counter),
     .cs(dev_cs),
     .direction(dev_direction),
+    .force_x2(dev_force_x2),
     .pwm_signal(dev_pwm_signal),
     .rst(dev_rst),
     .sck(dev_sck),
@@ -749,7 +765,7 @@ module swalense_top(io_in, io_out);
     .tx(dev_tx)
   );
   assign io_out = { dev_counter[4:0], dev_direction, dev_pwm_signal, dev_tx };
-  assign { dev_sdi, dev_sck, dev_cs, dev_channels } = io_in[6:2];
+  assign { dev_sdi, dev_sck, dev_cs, dev_force_x2, dev_channels } = io_in[7:2];
   assign dev_rst = io_in[1];
   assign dev_clk = io_in[0];
 endmodule
