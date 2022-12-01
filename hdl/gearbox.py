@@ -13,16 +13,15 @@ from hdl.test_common import TestCase, test_case
 
 class Gearbox(Elaboratable):
 
-    # TODO: this is probably too large
-    # Threshold is increased by X4 transition and decreased by a timer
-    THRESHOLD_WIDTH = 8
-
     TIMER_CYCLES_WIDTH = 8
 
     # Shift divides threshold to find gear (timer period is calculated accordingly below)
     SHIFT = 3
 
-    def __init__(self, decoder: GrayCodeDecoder, default_timer_cycles: int = (util.max_for_bits(THRESHOLD_WIDTH) // 2)):
+    # Threshold is increased by X4 transition and decreased by a timer
+    THRESHOLD_WIDTH = SHIFT + 2
+
+    def __init__(self, decoder: GrayCodeDecoder, default_timer_cycles: int = util.max_for_bits(TIMER_CYCLES_WIDTH - 1)):
 
         assert default_timer_cycles <= util.max_for_bits(self.TIMER_CYCLES_WIDTH), "default timer cycles too large"
 
@@ -75,10 +74,11 @@ class Gearbox(Elaboratable):
             m.d.sync += threshold.eq(threshold + 1)
 
         g = Signal(self.THRESHOLD_WIDTH - self.SHIFT)
+        assert g.width == 2
+
         m.d.comb += [
             g.eq(threshold >> self.SHIFT),
-            # TODO: on the iCEBreaker this form uses 1 less LUT than >1... why?
-            self.gear.eq(Mux(g[1:].any(), 2, g))
+            self.gear.eq(Mux(g[1], 2, g))
         ]
 
         a = Array([self._decoder.strobe_x1, self._decoder.strobe_x2, self._decoder.strobe_x4])
@@ -100,7 +100,7 @@ class GearboxTestSuite(TestCase):
         def __init__(self):
 
             self.decoder = GrayCodeDecoder()
-            self.gearbox = Gearbox(self.decoder)
+            self.gearbox = Gearbox(self.decoder, default_timer_cycles=62)
 
         def elaborate(self, platform) -> Module:
 
