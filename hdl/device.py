@@ -173,6 +173,7 @@ class DeviceTestSuite(TestCase):
 
         return counter
 
+    # FIXME: this needs to be reorganised
 
     WIDTH = 32
 
@@ -201,7 +202,7 @@ class DeviceTestSuite(TestCase):
 
         # TODO: do it in another clock domain instead and avoid clock aligned transitions
 
-        print(hex(val))
+        self.logger.info("SPI: send 0x{:X}".format(val))
 
         yield from self.do_cs_low()
 

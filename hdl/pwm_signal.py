@@ -90,21 +90,21 @@ class PWMSignalTestSuite(TestCase):
     def test_zero(self):
         yield from self.run_test(0)
 
-    # @sync_test_case
-    # def test_one(self):
-    #     yield from self.run_test(1)
-    #
-    # @sync_test_case
-    # def test_full(self):
-    #     yield from self.run_test(self.MAX_DUTY)
-    #
-    # @sync_test_case
-    # def test_value_below_half(self):
-    #     yield from self.run_test(11)
-    #
-    # @sync_test_case
-    # def test_value_above_half(self):
-    #     yield from self.run_test(30)
+    @test_case
+    def test_one(self):
+        yield from self.run_test(1)
+
+    @test_case
+    def test_full(self):
+        yield from self.run_test(self.MAX_DUTY)
+
+    @test_case
+    def test_value_below_half(self):
+        yield from self.run_test(11)
+
+    @test_case
+    def test_value_above_half(self):
+        yield from self.run_test(30)
 
 
 class PWMSignalTestSuite2(PWMSignalTestSuite):
