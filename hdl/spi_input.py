@@ -4,7 +4,7 @@ import unittest
 from amaranth import *
 from amaranth.asserts import Fell, Rose
 
-from hdl.luna.test.utils import sync_test_case, LunaGatewareTestCase
+from hdl.test_common import TestCase, test_case
 
 
 class SPIInputChunked(Elaboratable):
@@ -60,14 +60,11 @@ class SPIInputChunked(Elaboratable):
 #######################################################################################################################
 
 
-class SPIInputTestSuite(LunaGatewareTestCase):
+class SPIInputTestSuite(TestCase):
 
     WIDTH = 16
 
     DELAY = 4
-
-    def setUp(self):
-        super().setUp()
 
     def do_wait(self):
 
@@ -121,9 +118,9 @@ class SPIInputTestSuite(LunaGatewareTestCase):
         strobe = yield self.dut.strobe
         self.assertFalse(strobe, "strobe is still asserted")
 
-    @sync_test_case
+    @test_case
     def test(self):
-        yield from self.send(0x19C5)
+        yield from self.send(0x89C5)
 
 
 if __name__ == "__main__":

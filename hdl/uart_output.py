@@ -5,8 +5,7 @@ from amaranth import *
 
 import hdl.util as util
 
-from hdl.luna.test.utils import sync_test_case, LunaGatewareTestCase
-
+from hdl.test_common import TestCase, test_case
 
 class UARTOutput(Elaboratable):
 
@@ -76,14 +75,10 @@ class UARTOutput(Elaboratable):
 #######################################################################################################################
 
 
-class UARTOutputTestSuite(LunaGatewareTestCase):
+class UARTOutputTestSuite(TestCase):
 
     COUNTER_WIDTH = 7
     WORD_LEN = 8
-
-    def setUp(self):
-        super().setUp()
-        self.logger = logging.getLogger(self.__class__.__name__)
 
     def instantiate_dut(self):
         return UARTOutput(width=self.COUNTER_WIDTH, word_len=self.WORD_LEN)
@@ -115,7 +110,7 @@ class UARTOutputTestSuite(LunaGatewareTestCase):
 
         self.assertEqual(result, expected)
 
-    @sync_test_case
+    @test_case
     def test(self):
 
         if self.COUNTER_WIDTH == 8:

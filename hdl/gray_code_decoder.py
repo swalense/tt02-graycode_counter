@@ -3,7 +3,7 @@ import unittest
 
 from amaranth import *
 
-from hdl.luna.test.utils import LunaGatewareTestCase, sync_test_case
+from hdl.test_common import TestCase, test_case
 
 
 class GrayCodeDecoder(Elaboratable):
@@ -56,19 +56,16 @@ class GrayCodeDecoder(Elaboratable):
 #######################################################################################################################
 
 
-class GrayCodeDecoderTestSuite(LunaGatewareTestCase):
-
-    def setUp(self):
-        super().setUp()
-        self.logger = logging.getLogger(self.__class__.__name__)
+class GrayCodeDecoderTestSuite(TestCase):
 
     def instantiate_dut(self):
         return GrayCodeDecoder()
 
-    @sync_test_case
+    @test_case
     def test(self):
         yield
 
+        # FIXME: test is incomplete
         self.logger.warning("no test is implemented")
 
 

@@ -13,7 +13,7 @@ from hdl.spi_input import SPIInputChunked
 import hdl.config as config
 import hdl.util as util
 
-from hdl.luna.test.utils import sync_test_case, LunaGatewareTestCase
+from hdl.test_common import TestCase, test_case
 
 
 class Device(Elaboratable):
@@ -150,15 +150,11 @@ class Device(Elaboratable):
 #######################################################################################################################
 
 
-class DeviceTestSuite(LunaGatewareTestCase):
+class DeviceTestSuite(TestCase):
 
     COUNTER_WIDTH = config.COUNTER_WIDTH
 
     HOLD_CYCLES = 4
-
-    def setUp(self):
-        super(DeviceTestSuite, self).setUp()
-        self.logger = logging.getLogger(self.__class__.__name__)
 
     def instantiate_dut(self):
         return Device()
@@ -176,76 +172,6 @@ class DeviceTestSuite(LunaGatewareTestCase):
                     counter.append(v)
 
         return counter
-
-    # @sync_test_case
-    # def test1(self):
-    #
-    #     yield self.dut.debounce.eq(1)
-    #     yield self.dut.gearbox_cs.eq(1)
-    #
-    #     # 0 1 3 2 0 ...
-    #     # 0 2 3 1 0 ...
-    #     yield from self.update_channels([2, 0, 1, 3], repeat=2)
-    #     yield from self.update_channels([0, 1, 3, 1, 3], repeat=1)
-    #     yield from self.update_channels([1, 3, 2, 0], repeat=1)
-    #     yield from self.update_channels([1, 0, 2, 3], repeat=2)
-    #
-    # @sync_test_case
-    # def test2(self):
-    #
-    #     yield self.dut.debounce.eq(1)
-    #     yield self.dut.gearbox_cs.eq(1)
-    #     yield self.dut.wrap_sck.eq(1)
-    #     yield self.dut.half_sdi.eq(1)
-    #
-    #     yield from self.update_channels([0, 1, 3, 2], repeat=10)
-    #     yield from self.update_channels([3, 1, 0, 2], repeat=10)
-    #
-    # def do_wrap_half(self, wrap: bool, half: bool):
-    #
-    #     yield self.dut.debounce.eq(1)
-    #     yield self.dut.gearbox_cs.eq(1)
-    #     yield self.dut.wrap_sck.eq(int(wrap))
-    #     yield self.dut.half_sdi.eq(int(half))
-    #
-    #     counter = yield from self.update_channels([0, 1, 3, 2], repeat=17)
-    #     m = max(counter)
-    #
-    #     assert min(counter) == 0
-    #     assert m == util.max_bits(self.COUNTER_WIDTH - (1 if half else 0))
-    #     assert counter.count(m) == ((4 / (1 if half else 2)) if wrap else 1)
-    #
-    #
-    # @sync_test_case
-    # def test_nowrap_half(self):
-    #     yield from self.do_wrap_half(False, True)
-    #
-    # @sync_test_case
-    # def test_wrap_half(self):
-    #     yield from self.do_wrap_half(True, True)
-    #
-    # @sync_test_case
-    # def test_nowrap_full(self):
-    #     yield from self.do_wrap_half(False, False)
-    #
-    # @sync_test_case
-    # def test_wrap_full(self):
-    #     yield from self.do_wrap_half(True, False)
-    #
-    # @sync_test_case
-    # def test_pwm(self):
-    #
-    #     yield self.dut.debounce.eq(1)
-    #     yield self.dut.gearbox_cs.eq(1)
-    #     yield self.dut.wrap_sck.eq(1)
-    #     yield self.dut.half_sdi.eq(0)
-    #
-    #     yield from self.update_channels([0, 1, 3, 2], repeat=4)
-    #
-    #     for _ in range(128):
-    #         yield
-
-
 
 
     WIDTH = 32
@@ -293,7 +219,7 @@ class DeviceTestSuite(LunaGatewareTestCase):
 
         yield from self.update_channels([2, 0, 1, 3], repeat=10)
 
-    @sync_test_case
+    @test_case
     def test_parameters(self):
 
         yield from self.send(Device.calculate_parameters_value(

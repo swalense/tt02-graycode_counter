@@ -6,7 +6,7 @@ from amaranth import *
 import hdl.util as util
 import hdl.config as config
 
-from hdl.luna.test.utils import LunaGatewareTestCase, sync_test_case
+from hdl.test_common import test_case, TestCase
 
 
 class PWMSignal(Elaboratable):
@@ -56,18 +56,11 @@ class PWMSignal(Elaboratable):
 #######################################################################################################################
 
 
-class PWMSignalTestSuite(LunaGatewareTestCase):
+class PWMSignalTestSuite(TestCase):
 
     MAX_DUTY = 27
 
     CYCLES = 3
-
-    def setUp(self):
-
-        self.SYNC_CLOCK_FREQUENCY = config.CLOCK_FREQ
-
-        super().setUp()
-        self.logger = logging.getLogger(self.__class__.__name__)
 
     def instantiate_dut(self):
         return PWMSignal(width=util.bits_required(self.MAX_DUTY))
@@ -93,25 +86,25 @@ class PWMSignalTestSuite(LunaGatewareTestCase):
 
             yield
 
-    @sync_test_case
+    @test_case
     def test_zero(self):
         yield from self.run_test(0)
 
-    @sync_test_case
-    def test_one(self):
-        yield from self.run_test(1)
-
-    @sync_test_case
-    def test_full(self):
-        yield from self.run_test(self.MAX_DUTY)
-
-    @sync_test_case
-    def test_value_below_half(self):
-        yield from self.run_test(11)
-
-    @sync_test_case
-    def test_value_above_half(self):
-        yield from self.run_test(30)
+    # @sync_test_case
+    # def test_one(self):
+    #     yield from self.run_test(1)
+    #
+    # @sync_test_case
+    # def test_full(self):
+    #     yield from self.run_test(self.MAX_DUTY)
+    #
+    # @sync_test_case
+    # def test_value_below_half(self):
+    #     yield from self.run_test(11)
+    #
+    # @sync_test_case
+    # def test_value_above_half(self):
+    #     yield from self.run_test(30)
 
 
 class PWMSignalTestSuite2(PWMSignalTestSuite):

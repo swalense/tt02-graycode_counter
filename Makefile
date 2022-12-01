@@ -10,7 +10,7 @@ verilog:
 src: FORCE
 	$(MAKE) -C src
 
-# needs PDK_ROOT and OPENLANE_ROOT, OPENLANE_IMAGE_NAME set from your environment
+# needs PDK, PDK_ROOT and OPENLANE_ROOT, OPENLANE_IMAGE_NAME set from your environment
 harden:
 	docker run --rm \
 	-v $(OPENLANE_ROOT):/openlane \

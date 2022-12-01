@@ -8,7 +8,7 @@ from hdl.gray_code_decoder import GrayCodeDecoder
 import hdl.config as config
 import hdl.util as util
 
-from hdl.luna.test.utils import LunaGatewareTestCase, sync_test_case
+from hdl.test_common import TestCase, test_case
 
 
 class Gearbox(Elaboratable):
@@ -90,7 +90,7 @@ class Gearbox(Elaboratable):
 #######################################################################################################################
 
 
-class GearboxTestSuite(LunaGatewareTestCase):
+class GearboxTestSuite(TestCase):
 
     SEQUENCE_INC = [1, 3, 2, 0]
 
@@ -111,17 +111,10 @@ class GearboxTestSuite(LunaGatewareTestCase):
 
             return m
 
-    def setUp(self):
-
-        self.SYNC_CLOCK_FREQUENCY = config.CLOCK_FREQ
-
-        super().setUp()
-        self.logger = logging.getLogger(self.__class__.__name__)
-
     def instantiate_dut(self):
         return self.DUT()
 
-    @sync_test_case
+    @test_case
     def test(self):
 
         yield self.dut.decoder.debounce.eq(1)

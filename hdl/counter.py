@@ -5,7 +5,7 @@ from amaranth import *
 
 import hdl.util as util
 
-from hdl.luna.test.utils import LunaGatewareTestCase, sync_test_case
+from hdl.test_common import TestCase, test_case
 
 
 class Counter(Elaboratable):
@@ -53,14 +53,10 @@ class Counter(Elaboratable):
 #######################################################################################################################
 
 
-class CounterTestSuite(LunaGatewareTestCase):
+class CounterTestSuite(TestCase):
 
     COUNTER_WIDTH = 5
     COUNTER_MAX_VALUE = util.max_for_bits(COUNTER_WIDTH)
-
-    def setUp(self):
-        super().setUp()
-        self.logger = logging.getLogger(self.__class__.__name__)
 
     def instantiate_dut(self):
         return Counter(width=self.COUNTER_WIDTH)
@@ -83,45 +79,45 @@ class CounterTestSuite(LunaGatewareTestCase):
 
         self.assertEqual(v, expected)
 
-    @sync_test_case
+    @test_case
     def test_parameters_nowrap_width(self):
         yield from self.do_run(
             max_value=self.COUNTER_MAX_VALUE, inc=True, wrap=False, repeat=self.COUNTER_MAX_VALUE,
             expected=self.COUNTER_MAX_VALUE)
 
-    @sync_test_case
+    @test_case
     def test_parameters_nowrap_over(self):
         yield from self.do_run(
             max_value=self.COUNTER_MAX_VALUE, inc=True, wrap=False, repeat=self.COUNTER_MAX_VALUE + 1,
             expected=self.COUNTER_MAX_VALUE)
 
-    @sync_test_case
+    @test_case
     def test_parameters_nowrap_lower(self):
         yield from self.do_run(
             max_value=3, inc=True, wrap=False, repeat=10,
             expected=3)
 
-    @sync_test_case
+    @test_case
     def test_parameters_wrap_width(self):
         yield from self.do_run(
             max_value=self.COUNTER_MAX_VALUE, inc=True, wrap=True, repeat=self.COUNTER_MAX_VALUE + 1,
             expected=0)
 
-    @sync_test_case
+    @test_case
     def test_parameters_wrap_below(self):
         v = 3
         yield from self.do_run(
             max_value=v, inc=False, wrap=True, repeat=v,
             expected=1)
 
-    @sync_test_case
+    @test_case
     def test_parameters_wrap_zero(self):
         v = self.COUNTER_MAX_VALUE - 3
         yield from self.do_run(
             max_value=v, inc=False, wrap=True, repeat=1,
             expected=v)
 
-    @sync_test_case
+    @test_case
     def test_parameters_reset(self):
         yield from self.do_run(
             max_value=self.COUNTER_MAX_VALUE, inc=True, wrap=False, repeat=1,
