@@ -65,7 +65,7 @@ documentation:
     To further configure the module send some configuration word over the SPI interface (mode 0, MSB first, CS is active low).
     The 32-bit configuration word is constructed a follows (bits between brackets):
     
-    - [31:24] maximum counter value
+    - [24:31] maximum counter value
     
     - [16:23] initial counter value after configuration
     

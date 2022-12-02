@@ -52,7 +52,7 @@ class Device(Elaboratable):
             init_value: int,
             max_value: int):
 
-        assert config.SPI_WORD_LEN >= 5
+        assert config.SPI_WORD_LEN >= 6
 
         return int(gearbox) |\
                (int(wrap) << 1) |\
@@ -225,7 +225,8 @@ class DeviceTestSuite(TestCase):
     def test_parameters(self):
 
         yield from self.send(Device.calculate_parameters_value(
-            debounce=True, wrap=False, gearbox=True, x1_value=0, gearbox_timer_cycles=137, max_value=110, init_value=17))
+            debounce=True, wrap=False, gearbox=True, force_x2=False,
+            x1_value=0, gearbox_timer_cycles=137, max_value=110, init_value=17))
 
 
 if __name__ == "__main__":

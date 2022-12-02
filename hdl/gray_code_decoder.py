@@ -1,5 +1,5 @@
-import logging
 import unittest
+import numpy as np
 
 from amaranth import *
 
@@ -57,13 +57,13 @@ class GrayCodeDecoder(Elaboratable):
 
 
 #######################################################################################################################
-
+# TODO: test debounce and direction
 
 class GrayCodeDecoderTestSuite(TestCase):
 
     SEQUENCE_INC = [1, 3, 2, 0]
 
-    DELAY = 4
+    FORCE_X2 = False
 
     def instantiate_dut(self):
         return GrayCodeDecoder()
@@ -71,18 +71,32 @@ class GrayCodeDecoderTestSuite(TestCase):
     @test_case
     def test(self):
 
-        for s in self.SEQUENCE_INC * 2:
+        yield self.dut.force_x2.eq(self.FORCE_X2)
 
-            yield self.dut.x1_value.eq(0b11)
+        for x in range(4):
+            yield self.dut.x1_value.eq(x)
 
-            yield self.dut.channels.eq(s)
-            for _ in range(self.DELAY):
+            result = np.zeros(3)
+            for s in self.SEQUENCE_INC:
+
+                yield self.dut.channels.eq(s)
+                yield
                 yield
 
+                s1 = yield self.dut.strobe_x1
+                s2 = yield self.dut.strobe_x2
+                s4 = yield self.dut.strobe_x4
+                result += [s1, s2, s4]
+
+                assert not s1 or s == x or (self.FORCE_X2 & (s == (~x & 3))), "X1 strobe on incorrect value"
+                assert not s2 or s == x or s == (~x & 3), "X2 strobe on incorrect value"
+
+            assert np.array_equal(result, [2 if self.FORCE_X2 else 1, 2, 4]), "unexpected number of strobes for X4"
 
 
-        # FIXME: test is incomplete
-        self.logger.warning("no test is implemented")
+class GrayCodeDecoderTestSuiteForceX2(GrayCodeDecoderTestSuite):
+
+    FORCE_X2 = True
 
 
 if __name__ == "__main__":
