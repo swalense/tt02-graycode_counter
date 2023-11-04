@@ -65,16 +65,15 @@ The 8-N-1 serial output shifts 1 bit out at each clock cycle. The receiving seri
 The PWM frequency is derived from the maximum counter value. It might be unsuitable for visual feedback, e.g. driving a LED, for large values with a low
 clock frequency as the LED will appear blinking.
 
-
 # IO
 
-| # | Input        | Output       |
-|---|--------------|--------------|
-| 0 | clock  | UART serial output |
-| 1 | reset  | PWM signal |
-| 2 | channel A  | direction |
-| 3 | channel B  | counter bit 0 |
-| 4 | SPI CS  | counter bit 1 |
-| 5 | SPI SCK  | counter bit 2 |
-| 6 | SPI SDI  | counter bit 3 |
-| 7 | none  | counter bit 4 |
+| # | Input        | Output             |
+|---|--------------|--------------------|
+| 0 | clock        | UART serial output |
+| 1 | reset        | PWM signal         |
+| 2 | channel A    | direction          |
+| 3 | channel B    | counter bit 0      |
+| 4 | update on X2 | counter bit 1      |
+| 5 | SPI CS       | counter bit 2      |
+| 6 | SPI SCK      | counter bit 3      |
+| 7 | SPI SDI      | counter bit 4      |
