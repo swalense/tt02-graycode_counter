@@ -7,6 +7,7 @@ import hdl.util as util
 
 from hdl.test_common import TestCase, test_case
 
+
 class UARTOutput(Elaboratable):
 
     DEFAULT_WORD_LEN = 8

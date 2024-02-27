@@ -13,3 +13,7 @@ def bits_multiple(bits, multiple_of=8):
 def bits_required(v: int):
     m = np.max(np.abs(v))
     return int(np.log2(np.floor(m))) + 1 if m >= 1 else 0
+
+
+def is_power2(v: int):
+    return v != 0 and v & (v - 1) == 0

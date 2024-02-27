@@ -1,7 +1,7 @@
 
 import hdl.util as util
 
-CLOCK_FREQ = 5e3
+CLOCK_FREQ = 2.5e3
 
 COUNTER_WIDTH = 8
 OUTPUT_WIDTH = 5

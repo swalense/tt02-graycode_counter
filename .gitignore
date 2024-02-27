@@ -1,6 +1,7 @@
 .DS_Store
 .idea
 .vscode
+.micropico
 *.vcd
 *.gtkw
 **/__pycache__
@@ -10,3 +11,5 @@ runs
 default.dwf3work
 env_vars.sh
 datasheet.md
+datasheet.pdf
+all.png

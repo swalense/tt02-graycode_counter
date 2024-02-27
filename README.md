@@ -55,7 +55,7 @@ The 32-bit configuration word is constructed a follows (bits between brackets):
 
 The gearbox is implemented with a 5-bit threshold value; it is incremented by the X4 output of the decoder and decremented by a timer
 (this threshold is then divided by 8 to select the gear, giving 0: X1, 1: X1, 2/3: X4).
-Therefore the result depends on the clock frequency and the speed at which the Gray code transitions. The gearbox timer is exposed to enable tuning
+Therefore, the result depends on the clock frequency and the speed at which the Gray code transitions. The gearbox timer is exposed to enable tuning
 the interval between two updates by the timer.
 For a rotary encoder with detents one can suggest using *clock_hz / (detents x transitions - 16)* as a starting point to determine a suitable value,
 where detents is the number per turn (e.g. 24) and transitions is the number per detent (e.g. 4). That is, 62 for a common 24 detents / 24 PPR encoder.
