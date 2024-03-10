@@ -5,6 +5,7 @@
 *.vcd
 *.gtkw
 **/__pycache__
+venv
 icebreaker/build
 old
 runs
