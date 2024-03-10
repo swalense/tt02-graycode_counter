@@ -125,7 +125,7 @@ async def test_serial(dut):
 
     v = 0
     for i in range(64):
-        v |= dut.serial_tx.value << i
+        v |= int(dut.serial_tx.value) << i
         await ClockCycles(dut.clk, 1)
 
     # Look for start bit and discard it
